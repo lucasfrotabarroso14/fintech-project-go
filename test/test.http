@@ -1,0 +1,11 @@
+### Teste de Criação de Usuário
+POST http://localhost:8881/users
+Content-Type: application/json
+
+{
+  "id": "123",
+  "name": "João Silva",
+  "email": "joao.silva@example.com",
+  "password": "senha123",
+  "cpf": "123.456.789-00"
+}
