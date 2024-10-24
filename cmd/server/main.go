@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
-	"processamento-pagamento-go/internal/domain/interfaces"
 	"processamento-pagamento-go/internal/domain/usecase/user"
 	"processamento-pagamento-go/internal/handlers/user_handler"
+	"processamento-pagamento-go/internal/infra/database"
+	user_repository "processamento-pagamento-go/internal/infra/database/user"
 )
 
 func main() {
@@ -20,16 +20,7 @@ func main() {
 	}
 	fmt.Println("Current working directory:", wd)
 
-	if err := godotenv.Load(".env"); err != nil {
-		log.Fatal("Error to load .env file -> ", err)
-	}
-
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
+	dsn := database.GenerateDSN()
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -45,7 +36,7 @@ func main() {
 	}
 	mux := http.NewServeMux()
 
-	var userRepo interfaces.UserRepoInterface
+	userRepo := user_repository.NewUserRepository(db)
 	userUseCase := user.NewUserUseCase(userRepo)
 	userHandler := user_handler.NewUserHandler(userUseCase)
 	mux.HandleFunc("/users", userHandler.CreateUser)

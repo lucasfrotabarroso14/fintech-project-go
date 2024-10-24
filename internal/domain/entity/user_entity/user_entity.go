@@ -15,8 +15,6 @@ type User struct {
 	Cpf           string
 }
 
-// criar depois funcao de validacao dos campos
-
 func NewUser(user *user.CreateUserDTO) (*User, error) {
 
 	hashPassword, err := auth.HashPassword(user.Password)
