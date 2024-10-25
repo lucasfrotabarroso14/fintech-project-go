@@ -6,19 +6,16 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
-	"os"
-	"processamento-pagamento-go/internal/domain/usecase/user"
+	account_usecase "processamento-pagamento-go/internal/domain/usecase/account_usecase"
+	"processamento-pagamento-go/internal/domain/usecase/user_usecase"
+	"processamento-pagamento-go/internal/handlers/account_handler"
 	"processamento-pagamento-go/internal/handlers/user_handler"
 	"processamento-pagamento-go/internal/infra/database"
+	"processamento-pagamento-go/internal/infra/database/account"
 	user_repository "processamento-pagamento-go/internal/infra/database/user"
 )
 
 func main() {
-	wd, err := os.Getwd()
-	if err != nil {
-		log.Fatal("Error getting current working directory:", err)
-	}
-	fmt.Println("Current working directory:", wd)
 
 	dsn := database.GenerateDSN()
 
@@ -36,12 +33,18 @@ func main() {
 	}
 	mux := http.NewServeMux()
 
-	userRepo := user_repository.NewUserRepository(db)
-	userUseCase := user.NewUserUseCase(userRepo)
-	userHandler := user_handler.NewUserHandler(userUseCase)
-	mux.HandleFunc("/users", userHandler.CreateUser)
+	accountRepo := account.NewAccountRepository(db)
+	accountUserCase := account_usecase.NewAccountUserCase(accountRepo)
+	accountHandler := account_handler.NewAccountHandler(accountUserCase)
 
-	if err := http.ListenAndServe(":8881", mux); err != nil {
+	userRepo := user_repository.NewUserRepository(db)
+	userUseCase := user_usecase.NewUserUseCase(userRepo)
+	userHandler := user_handler.NewUserHandler(userUseCase)
+
+	mux.HandleFunc("/users", userHandler.CreateUser)
+	mux.HandleFunc("/account", accountHandler.CreateAccount)
+
+	if err = http.ListenAndServe(":8881", mux); err != nil {
 		fmt.Printf("Error: %s", err)
 	}
 

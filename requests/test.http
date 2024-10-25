@@ -9,3 +9,12 @@ Content-Type: application/json
   "password": "senha123",
   "cpf": "12345678900"
 }
+
+### Teste de Criação de Usuário
+POST http://localhost:8881/account
+Content-Type: application/json
+
+{
+  "userId": "ebff0eb5-5c1d-4cf3-87aa-9edf8a99aa75"
+}
+

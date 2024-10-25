@@ -10,17 +10,15 @@ import (
 
 func GenerateDSN() string {
 	//const envFilePath = "C:/Users/lfrota/GolandProjects/processamento-pagamento-go/.env"
-	// Carregar o arquivo .env
+
 	wd, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("Error getting current working directory: %v", err)
 	}
 
-	// Constrói o caminho absoluto para o arquivo .env subindo 4 níveis
-	envFilePath := filepath.Join(wd, "../../../../.env") // Ajuste o número de ".." conforme necessário
+	envFilePath := filepath.Join(wd, "/.env")
 
-	// Carregar o arquivo .env
-	if err := godotenv.Load(envFilePath); err != nil {
+	if err = godotenv.Load(envFilePath); err != nil {
 		log.Fatalf("Error to load .env file from %s -> %v", envFilePath, err)
 	}
 	dbUser := os.Getenv("DB_USER")

@@ -1,4 +1,4 @@
-package interfaces
+package user_interface
 
 import (
 	"processamento-pagamento-go/internal/domain/entity/user_entity"

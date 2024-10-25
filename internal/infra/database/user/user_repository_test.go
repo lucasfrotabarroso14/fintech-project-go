@@ -27,7 +27,7 @@ func TestUserRepository_CreateUse(t *testing.T) {
 	}
 
 	err = userRepo.CreateUser(testUser)
-	assert.NoError(t, err, "Error creating user")
+	assert.NoError(t, err, "Error creating user_usecase")
 
 	var count int
 	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE id =?", testUser.Id).Scan(&count)
