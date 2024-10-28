@@ -6,13 +6,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
-	account_usecase "processamento-pagamento-go/internal/domain/usecase/account_usecase"
+	"processamento-pagamento-go/internal/domain/usecase/transaction_usecase"
+
 	"processamento-pagamento-go/internal/domain/usecase/user_usecase"
-	"processamento-pagamento-go/internal/handlers/account_handler"
+	"processamento-pagamento-go/internal/handlers/transaction_handler"
 	"processamento-pagamento-go/internal/handlers/user_handler"
 	"processamento-pagamento-go/internal/infra/database"
-	"processamento-pagamento-go/internal/infra/database/account"
-	user_repository "processamento-pagamento-go/internal/infra/database/user"
+	"processamento-pagamento-go/internal/infra/database/account_repository_db"
+	"processamento-pagamento-go/internal/infra/database/transaction_repository_db"
+	user_repository "processamento-pagamento-go/internal/infra/database/user_repository_db"
 )
 
 func main() {
@@ -33,16 +35,19 @@ func main() {
 	}
 	mux := http.NewServeMux()
 
-	accountRepo := account.NewAccountRepository(db)
-	accountUserCase := account_usecase.NewAccountUserCase(accountRepo)
-	accountHandler := account_handler.NewAccountHandler(accountUserCase)
-
+	transactionRepo := transaction_repository_db.NewTransactionRepository(db)
+	accountRepo := account_repository_db.NewAccountRepository(db)
 	userRepo := user_repository.NewUserRepository(db)
-	userUseCase := user_usecase.NewUserUseCase(userRepo)
+
+	transactionUseCase := transaction_usecase.NewTransactionUseCase(accountRepo, transactionRepo)
+	transactionHandler := transaction_handler.NewTransactionHandler(transactionUseCase)
+
+	userUseCase := user_usecase.NewUserUseCase(userRepo, accountRepo)
 	userHandler := user_handler.NewUserHandler(userUseCase)
 
 	mux.HandleFunc("/users", userHandler.CreateUser)
-	mux.HandleFunc("/account", accountHandler.CreateAccount)
+
+	mux.HandleFunc("/transaction", transactionHandler.CrateTransaction)
 
 	if err = http.ListenAndServe(":8881", mux); err != nil {
 		fmt.Printf("Error: %s", err)

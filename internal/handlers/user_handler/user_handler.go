@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"processamento-pagamento-go/internal/domain/dto/user"
 	"processamento-pagamento-go/internal/domain/interfaces/user_interface"
+	"processamento-pagamento-go/pkg/responses"
 )
 
 type UserHandler struct {
@@ -21,16 +22,14 @@ func (uh *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	var userDTO user.CreateUserDTO
 	if err := json.NewDecoder(r.Body).Decode(&userDTO); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		responses.Error(w, http.StatusBadRequest, "Error", err)
 		return
 	}
 	if err := uh.userUseCase.CreateUser(&userDTO); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responses.Error(w, http.StatusInternalServerError, "Error", err)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "usuario criado com sucesso",
-	})
+
+	responses.Success(w, http.StatusCreated, "Success", nil)
 
 }

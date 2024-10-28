@@ -3,18 +3,20 @@ POST http://localhost:8881/users
 Content-Type: application/json
 
 {
-  "id": "123",
-  "name": "João Silva",
-  "email": "joao.silva@example.com",
-  "password": "senha123",
-  "cpf": "12345678900"
+
+  "name": "lucsas Silva 22",
+  "email": "lucas.sislv2a@example.com",
+  "password": "senha1232",
+  "cpf": "12345673932"
 }
 
-### Teste de Criação de Usuário
-POST http://localhost:8881/account
+### Teste de transferencia
+POST http://localhost:8881/transaction
 Content-Type: application/json
 
 {
-  "userId": "ebff0eb5-5c1d-4cf3-87aa-9edf8a99aa75"
+  "from_account_id": "5d9d93a0-8c14-40fc-916c-dbe5497faa26",
+  "to_account_id": "5db69188-08cb-4df1-aa51-d3f34800d6d4",
+  "amount": 100
 }
 

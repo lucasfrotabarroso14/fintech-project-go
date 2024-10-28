@@ -3,17 +3,21 @@ package user_usecase
 import (
 	"fmt"
 	"processamento-pagamento-go/internal/domain/dto/user"
+	"processamento-pagamento-go/internal/domain/entity/account_entity"
 	"processamento-pagamento-go/internal/domain/entity/user_entity"
+	"processamento-pagamento-go/internal/domain/interfaces/account_interface"
 	"processamento-pagamento-go/internal/domain/interfaces/user_interface"
 )
 
 type UserUseCase struct {
-	userRepository user_interface.UserRepoInterface
+	userRepository    user_interface.UserRepoInterface
+	accountRepository account_interface.AccountRepositoryInterface
 }
 
-func NewUserUseCase(repo user_interface.UserRepoInterface) *UserUseCase {
+func NewUserUseCase(userRepo user_interface.UserRepoInterface, accountRepo account_interface.AccountRepositoryInterface) *UserUseCase {
 	return &UserUseCase{
-		userRepository: repo,
+		userRepository:    userRepo,
+		accountRepository: accountRepo,
 	}
 }
 
@@ -28,6 +32,17 @@ func (uc *UserUseCase) CreateUser(user *user.CreateUserDTO) error {
 		fmt.Println(err)
 		return err
 	}
+
+	accounEntity, err := account_entity.NewAccount(userEntity.Id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.accountRepository.CreateAccount(accounEntity); err != nil {
+		return err
+
+	}
+
 	return nil
 
 }
