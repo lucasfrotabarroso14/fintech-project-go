@@ -1,7 +1,5 @@
 version: '3'
 services:
-
-
   db:
     image: mysql:8.0
     ports:
@@ -21,6 +19,30 @@ services:
     depends_on:
       - db
     ports:
-      - 8081:8080
+      - 8088:8080
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb-local-fintech
+    ports:
+      - 8000:8000
+    command: "-jar DynamoDBLocal.jar -sharedDb"
+    networks:
+      - fintech-net
+
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    depends_on:
+      - dynamodb
+    environment:
+      DYNAMO_ENDPOINT: http://dynamodb:8000
+    ports:
+      - 8001:8001
+    networks:
+      - fintech-net
+
 volumes:
   mysql_data:
+
+networks:
+  fintech-net:

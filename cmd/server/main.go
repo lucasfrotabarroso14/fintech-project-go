@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"processamento-pagamento-go/internal/domain/usecase/transaction_usecase"
+	"processamento-pagamento-go/internal/infra/database/dynamodb_repository"
 
 	"processamento-pagamento-go/internal/domain/usecase/user_usecase"
 	"processamento-pagamento-go/internal/handlers/transaction_handler"
@@ -21,6 +22,14 @@ func main() {
 
 	dsn := database.GenerateDSN()
 
+	dynamoDBRepo, err := dynamodb_repository.NewDynamoDBRepository()
+	if err != nil {
+		log.Fatal(err)
+	}
+	//err = dynamoDBRepo.CreateTransactionsTable()
+	//if err != nil {
+	//	log.Fatalf("Erro ao criar tabela transactions: %v", err)
+	//}
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal("Error database connection:", err)
@@ -39,7 +48,7 @@ func main() {
 	accountRepo := account_repository_db.NewAccountRepository(db)
 	userRepo := user_repository.NewUserRepository(db)
 
-	transactionUseCase := transaction_usecase.NewTransactionUseCase(accountRepo, transactionRepo)
+	transactionUseCase := transaction_usecase.NewTransactionUseCase(accountRepo, transactionRepo, dynamoDBRepo)
 	transactionHandler := transaction_handler.NewTransactionHandler(transactionUseCase)
 
 	userUseCase := user_usecase.NewUserUseCase(userRepo, accountRepo)

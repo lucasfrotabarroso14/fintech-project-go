@@ -13,14 +13,16 @@ import (
 // realizar a transferencia da conta x para a y
 
 type TransactionUseCase struct {
-	accountRepository     account_interface.AccountRepositoryInterface
-	transactionRepository transaction_interface.TransactionRepository
+	accountRepository       account_interface.AccountRepositoryInterface
+	transactionRepository   transaction_interface.TransactionRepository
+	transactionDynamoDBRepo transaction_interface.TransactionDynamoDBRepoInterface
 }
 
-func NewTransactionUseCase(accountRepo account_interface.AccountRepositoryInterface, transactionRepo transaction_interface.TransactionRepository) *TransactionUseCase {
+func NewTransactionUseCase(accountRepo account_interface.AccountRepositoryInterface, transactionRepo transaction_interface.TransactionRepository, transactionDynamoDBRepo transaction_interface.TransactionDynamoDBRepoInterface) *TransactionUseCase {
 	return &TransactionUseCase{
-		accountRepository:     accountRepo,
-		transactionRepository: transactionRepo,
+		accountRepository:       accountRepo,
+		transactionRepository:   transactionRepo,
+		transactionDynamoDBRepo: transactionDynamoDBRepo,
 	}
 }
 
@@ -68,6 +70,10 @@ func (uc *TransactionUseCase) Execute(input transaction_dto.TransactionInputDTO)
 	}
 
 	if err = uc.accountRepository.DecreaseBalance(input.To_account_id, input.Amount); err != nil {
+		return err
+	}
+
+	if err = uc.transactionDynamoDBRepo.SaveTransaction(transactionEntity); err != nil {
 		return err
 	}
 
