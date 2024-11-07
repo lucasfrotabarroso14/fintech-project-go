@@ -20,3 +20,15 @@ Content-Type: application/json
   "amount": 100
 }
 
+
+### Request transferencia trabalho
+POST http://localhost:8881/transaction
+Content-Type: application/json
+
+{
+  "from_account_id": "13d9f7dd-38ba-4270-be66-888063029b87",
+  "to_account_id": "54c94560-e552-44fd-95d4-59a5af796d92",
+  "amount": 100
+}
+
+

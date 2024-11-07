@@ -39,7 +39,7 @@ func (uc *TransactionUseCase) Execute(input transaction_dto.TransactionInputDTO)
 		return err
 	}
 
-	// verificar se a conta do from existe e se a conta do to existe\
+	// verificar se a conta do from existe e se a conta do to existe
 	_, err = uc.accountRepository.GetById(input.From_account_id)
 	if err != nil {
 		return err
