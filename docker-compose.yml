@@ -12,6 +12,8 @@ services:
       MYSQL_PASSWORD: docker
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - fintech-net
 
   adminer:
     image: adminer
@@ -20,6 +22,8 @@ services:
       - db
     ports:
       - 8088:8080
+    networks:
+      - fintech-net
 
   dynamodb:
     image: amazon/dynamodb-local
@@ -38,6 +42,18 @@ services:
       DYNAMO_ENDPOINT: http://dynamodb:8000
     ports:
       - 8001:8001
+    networks:
+      - fintech-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-fintech
+    ports:
+      - 5672:5672      # Porta padrão de comunicação com RabbitMQ
+      - 15672:15672    # Porta para acessar a interface de gerenciamento do RabbitMQ
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     networks:
       - fintech-net
 
