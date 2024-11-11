@@ -2,10 +2,12 @@ package transaction_usecase
 
 import (
 	"errors"
+	"go.uber.org/zap"
 	"processamento-pagamento-go/internal/domain/dto/transaction_dto"
 	"processamento-pagamento-go/internal/domain/entity/transaction_entity"
 	"processamento-pagamento-go/internal/domain/interfaces/account_interface"
 	"processamento-pagamento-go/internal/domain/interfaces/transaction_interface"
+	"processamento-pagamento-go/pkg/logger"
 )
 
 // vou realizar a transferencia pelo id
@@ -20,6 +22,7 @@ type TransactionUseCase struct {
 
 func NewTransactionUseCase(accountRepo account_interface.AccountRepositoryInterface, transactionRepo transaction_interface.TransactionRepository, transactionDynamoDBRepo transaction_interface.TransactionDynamoDBRepoInterface) *TransactionUseCase {
 	return &TransactionUseCase{
+
 		accountRepository:       accountRepo,
 		transactionRepository:   transactionRepo,
 		transactionDynamoDBRepo: transactionDynamoDBRepo,
@@ -35,7 +38,12 @@ func (uc *TransactionUseCase) Execute(input transaction_dto.TransactionInputDTO)
 	}
 	// receber os dados
 	transactionEntity, err := transaction_entity.CreateNewTransactionEntity(transactionEntityDTO)
+
 	if err != nil {
+		logger.Log.Error("fail to create transaction entity",
+			zap.String("account_id", input.From_account_id),
+			zap.Error(err),
+		)
 		return err
 	}
 

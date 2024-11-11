@@ -7,7 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"go.uber.org/zap"
 	"processamento-pagamento-go/internal/domain/entity/transaction_entity"
+	"processamento-pagamento-go/pkg/logger"
 )
 
 type DynamoDBRepository struct {
@@ -29,6 +31,11 @@ func NewDynamoDBRepository() (*DynamoDBRepository, error) {
 		})),
 	)
 	if err != nil {
+		logger.Log.Error("Error loading DynamoDB configuration",
+			zap.String("endpoint", endpoint),
+			zap.String("region", region),
+			zap.Error(err),
+		)
 		return nil, fmt.Errorf("error loading configuration: %w", err)
 	}
 
@@ -40,6 +47,10 @@ func (dr *DynamoDBRepository) SaveTransaction(transaction *transaction_entity.Tr
 	// Converte a entidade da transação para um mapa de atributos DynamoDB
 	item, err := attributevalue.MarshalMap(transaction)
 	if err != nil {
+		logger.Log.Error("Error marshaling transaction entity",
+			zap.String("transaction_id", transaction.Id),
+			zap.Error(err),
+		)
 		return fmt.Errorf("error marshaling transaction: %w", err)
 	}
 
@@ -52,41 +63,12 @@ func (dr *DynamoDBRepository) SaveTransaction(transaction *transaction_entity.Tr
 	// Executa a operação PutItem e trata o erro, se ocorrer
 	_, err = dr.Client.PutItem(context.TODO(), input)
 	if err != nil {
+		logger.Log.Error("Failed to save transaction in DynamoDB",
+			zap.String("transaction_id", transaction.Id),
+			zap.Error(err),
+		)
 		return fmt.Errorf("failed to save transaction in DynamoDB: %w", err)
 	}
 
 	return nil
 }
-
-//func (dr *DynamoDBRepository) CreateTransactionsTable() error {
-//	// Define a estrutura da tabela
-//	input := &dynamodb.CreateTableInput{
-//		TableName: aws.String("transactions"),
-//		AttributeDefinitions: []types.AttributeDefinition{
-//			{
-//				AttributeName: aws.String("id"),
-//				AttributeType: types.ScalarAttributeTypeS, // Tipo STRING para o id
-//			},
-//		},
-//		KeySchema: []types.KeySchemaElement{
-//			{
-//				AttributeName: aws.String("id"),
-//				KeyType:       types.KeyTypeHash, // id é a chave HASH (partição)
-//			},
-//		},
-//		ProvisionedThroughput: &types.ProvisionedThroughput{
-//			ReadCapacityUnits:  aws.Int64(5),
-//			WriteCapacityUnits: aws.Int64(5),
-//		},
-//	}
-//
-//	// Tenta criar a tabela
-//	_, err := dr.Client.CreateTable(context.TODO(), input)
-//	if err != nil {
-//		log.Printf("Falha ao criar tabela: %v", err)
-//		return err
-//	}
-//
-//	log.Println("Tabela 'transactions' criada com sucesso")
-//	return nil
-//}

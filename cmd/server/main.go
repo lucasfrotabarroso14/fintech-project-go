@@ -10,21 +10,21 @@ import (
 	"processamento-pagamento-go/internal/domain/usecase/user_usecase"
 	"processamento-pagamento-go/internal/handlers/transaction_handler"
 	"processamento-pagamento-go/internal/handlers/user_handler"
+	"processamento-pagamento-go/pkg/logger"
 )
 
 func main() {
 
-	//err = dynamoDBRepo.CreateTransactionsTable()
-	//if err != nil {
-	//	log.Fatalf("Erro ao criar tabela transactions: %v", err)
-	//}
+	logger.NewSingletonLogger()
+	defer logger.Log.Sync()
+
 	ctx := context.Background()
 	adapter := adapters.New(ctx)
 
 	defer adapter.DB.Close()
 
 	mux := http.NewServeMux()
-
+	logger.NewSingletonLogger()
 	transactionUseCase := transaction_usecase.NewTransactionUseCase(adapter.AccountRepo, adapter.TransactionRepo, adapter.DynamoDBRepo)
 	transactionHandler := transaction_handler.NewTransactionHandler(transactionUseCase)
 

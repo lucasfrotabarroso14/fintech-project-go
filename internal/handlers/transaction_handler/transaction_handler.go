@@ -2,9 +2,11 @@ package transaction_handler
 
 import (
 	"encoding/json"
+	"go.uber.org/zap"
 	"net/http"
 	"processamento-pagamento-go/internal/domain/dto/transaction_dto"
 	"processamento-pagamento-go/internal/domain/interfaces/transaction_interface"
+	"processamento-pagamento-go/pkg/logger"
 	"processamento-pagamento-go/pkg/responses"
 )
 
@@ -22,6 +24,9 @@ func (th *TransactionHandler) CrateTransaction(w http.ResponseWriter, r *http.Re
 	var transactionDTO transaction_dto.TransactionInputDTO
 
 	if err := json.NewDecoder(r.Body).Decode(&transactionDTO); err != nil {
+		logger.Log.Error("Failed to decode transaction input",
+			zap.Error(err),
+		)
 		responses.Error(w, http.StatusBadRequest, "Error", err)
 		return
 	}

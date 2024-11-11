@@ -23,7 +23,9 @@ type Adapters struct {
 }
 
 func New(ctx context.Context) *Adapters {
+
 	adapters := &Adapters{}
+
 	dsn := database.GenerateDSN()
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
