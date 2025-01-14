@@ -17,9 +17,9 @@ func NewTransactionRepository(db *sql.DB) *TransactionRepository {
 	}
 }
 
-func (tr *TransactionRepository) CreateNewTransaction(transaction *transaction_entity.TransactionEntity) error {
+func (tr *TransactionRepository) CreateNewTransaction(tx *sql.Tx, transaction *transaction_entity.TransactionEntity) error {
 	query := "INSERT INTO transactions(id, from_account_id, to_account_id, amount) VALUES (?, ?, ?, ?)"
-	_, err := tr.DB.Exec(query, transaction.Id, transaction.From_account_id, transaction.To_account_id, transaction.Amount)
+	_, err := tx.Exec(query, transaction.Id, transaction.From_account_id, transaction.To_account_id, transaction.Amount)
 	if err != nil {
 		logger.Log.Error("Failed to create new transaction in MySQL",
 			zap.String("transaction_id", transaction.Id),

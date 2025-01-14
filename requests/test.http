@@ -4,10 +4,10 @@ Content-Type: application/json
 
 {
 
-  "name": "lucas",
-  "email": "lucas.sislv2a@example.com",
+  "name": "joao",
+  "email": "joao.sislv2a@example.com",
   "password": "senha1232",
-  "cpf": "12345673932"
+  "cpf": "12345673931"
 }
 
 ### Request transferencia
@@ -15,8 +15,8 @@ POST http://localhost:8881/transaction
 Content-Type: application/json
 
 {
-  "from_account_id": "d36b9e6e-497c-4a0a-9986-250721c604dd",
-  "to_account_id": "d8322238-2bf1-47da-85d7-2e86184bd5a6",
+  "from_account_id": "0492eab8-89a7-49cb-a3b4-be147f2ad592",
+  "to_account_id": "b0b012b2-4423-47c4-9148-49496d89ea3d",
   "amount": 100
 }
 

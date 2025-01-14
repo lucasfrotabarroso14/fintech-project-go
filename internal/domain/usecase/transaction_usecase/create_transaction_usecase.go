@@ -68,25 +68,41 @@ func (uc *TransactionUseCase) Execute(input transaction_dto.TransactionInputDTO)
 	}
 
 	//subtrair da conta do from
-
-	if err = uc.accountRepository.IncreaseBalance(input.From_account_id, input.Amount); err != nil {
+	tx, err := uc.accountRepository.BeginTransaction()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if err = uc.accountRepository.DecreaseBalance(tx, input.From_account_id, input.Amount); err != nil {
 		return err
 	}
 
-	if err = uc.transactionRepository.CreateNewTransaction(transactionEntity); err != nil {
+	if err = uc.accountRepository.IncreaseBalance(tx, input.To_account_id, input.Amount); err != nil {
 		return err
 	}
 
-	if err = uc.accountRepository.DecreaseBalance(input.To_account_id, input.Amount); err != nil {
+	if err = uc.transactionRepository.CreateNewTransaction(tx, transactionEntity); err != nil {
 		return err
 	}
 
-	if err = uc.transactionDynamoDBRepo.SaveTransaction(transactionEntity); err != nil {
+	if err = tx.Commit(); err != nil {
 		return err
 	}
+
+	go func() {
+		if err = uc.transactionDynamoDBRepo.SaveTransaction(transactionEntity); err != nil {
+			logger.Log.Error("failed to save transaction in DynamoDB",
+				zap.String("transaction_id", transactionEntity.Id),
+				zap.Error(err),
+			)
+		}
+	}()
+	logger.Log.Info("transaction completed successfully",
+		zap.String("from_account_id", input.From_account_id),
+		zap.String("to_account_id", input.To_account_id),
+		zap.Float64("amount", input.Amount),
+	)
 
 	return nil
-
-	// somar da conta do to
 
 }

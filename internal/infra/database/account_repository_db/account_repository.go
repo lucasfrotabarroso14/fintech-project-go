@@ -17,6 +17,10 @@ func NewAccountRepository(db *sql.DB) *AccountRepository {
 	}
 }
 
+func (ar *AccountRepository) BeginTransaction() (*sql.Tx, error) {
+	return ar.DB.Begin()
+}
+
 func (ar *AccountRepository) CreateAccount(account *account_entity.Account) error {
 	query := "INSERT INTO accounts(id, user_id, balance) VALUES (?, ?, ?)"
 	_, err := ar.DB.Exec(query, account.Id, account.User_id, account.Balance)
@@ -46,9 +50,9 @@ func (ar *AccountRepository) GetBalanceById(accountId string) (float64, error) {
 	return balance, nil
 }
 
-func (ar *AccountRepository) IncreaseBalance(accountId string, amount float64) error {
+func (ar *AccountRepository) IncreaseBalance(tx *sql.Tx, accountId string, amount float64) error {
 	query := "UPDATE accounts SET balance = balance + ? WHERE id = ?"
-	_, err := ar.DB.Exec(query, amount, accountId)
+	_, err := tx.Exec(query, amount, accountId)
 	if err != nil {
 		logger.Log.Error("Failed to increase balance in MySQL",
 			zap.String("account_id", accountId),
@@ -60,9 +64,9 @@ func (ar *AccountRepository) IncreaseBalance(accountId string, amount float64) e
 	return nil
 }
 
-func (ar *AccountRepository) DecreaseBalance(accountId string, amount float64) error {
+func (ar *AccountRepository) DecreaseBalance(tx *sql.Tx, accountId string, amount float64) error {
 	query := "UPDATE accounts SET balance = balance - ? WHERE id = ?"
-	_, err := ar.DB.Exec(query, amount, accountId)
+	_, err := tx.Exec(query, amount, accountId)
 	if err != nil {
 		logger.Log.Error("Failed to decrease balance in MySQL",
 			zap.String("account_id", accountId),

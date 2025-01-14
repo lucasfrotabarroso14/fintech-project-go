@@ -17,7 +17,7 @@ type DynamoDBRepository struct {
 }
 
 func NewDynamoDBRepository() (*DynamoDBRepository, error) {
-	const endpoint = "http://localhost:8000" // URL do DynamoDB Local
+	const endpoint = "http://localhost:8010" // URL do DynamoDB Local
 	const region = "us-west-2"               // Região configurada
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
